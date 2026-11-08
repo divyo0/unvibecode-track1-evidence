@@ -1,0 +1,83 @@
+--- a/src/flask/app.py
++++ b/src/flask/app.py
+@@ -88,6 +88,7 @@
+ 
+         return f(self, *args, **kwargs)
+ 
++    wrapper._flask_ctx_shim = True  # type: ignore[attr-defined]
+     return update_wrapper(wrapper, f)  # type: ignore[return-value]
+ 
+ 
+@@ -102,6 +103,7 @@
+ 
+         return f(self, *args, **kwargs)
+ 
++    wrapper._flask_ctx_shim = True  # type: ignore[attr-defined]
+     return update_wrapper(wrapper, f)  # type: ignore[return-value]
+ 
+ 
+@@ -254,25 +256,28 @@
+         # These method signatures were updated to take a ctx param. Detect
+         # overridden methods in subclasses that still have the old signature.
+         # Show a deprecation warning and wrap to call with correct args.
+-        for method in (
+-            cls.handle_http_exception,
+-            cls.handle_user_exception,
+-            cls.handle_exception,
+-            cls.log_exception,
+-            cls.dispatch_request,
+-            cls.full_dispatch_request,
+-            cls.finalize_request,
+-            cls.make_default_options_response,
+-            cls.preprocess_request,
+-            cls.process_response,
+-            cls.do_teardown_request,
+-            cls.do_teardown_appcontext,
+-            cls.update_template_context,
++        for name in (
++            "handle_http_exception",
++            "handle_user_exception",
++            "handle_exception",
++            "log_exception",
++            "dispatch_request",
++            "full_dispatch_request",
++            "finalize_request",
++            "make_default_options_response",
++            "preprocess_request",
++            "process_response",
++            "do_teardown_request",
++            "do_teardown_appcontext",
++            "update_template_context",
+         ):
+-            base_method = getattr(Flask, method.__name__)
++            # Use the attribute name, not method.__name__, which differs for
++            # aliased or undecorated-wrapper overrides.
++            method = getattr(cls, name)
++            base_method = Flask.__dict__[name]
+ 
+-            if method is base_method:
+-                # not overridden
++            if method is base_method or getattr(method, "_flask_ctx_shim", False):
++                # not overridden, or already adapted
+                 continue
+ 
+             # get the second parameter (first is self)
+@@ -296,14 +301,15 @@
+                 )
+             ):
+                 warnings.warn(
+-                    f"The '{method.__name__}' method now takes 'ctx: AppContext'"
++                    f"The '{name}' method now takes 'ctx: AppContext'"
+                     " as the first parameter. The old signature is deprecated"
+                     " and will not be supported in Flask 4.0.",
+                     DeprecationWarning,
+                     stacklevel=2,
+                 )
+-                setattr(cls, method.__name__, remove_ctx(method))
+-                setattr(Flask, method.__name__, add_ctx(base_method))
++                setattr(cls, name, remove_ctx(method))
++                if not getattr(base_method, "_flask_ctx_shim", False):
++                    setattr(Flask, name, add_ctx(base_method))
+ 
+     def __init__(
+         self,

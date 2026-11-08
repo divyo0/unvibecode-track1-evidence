@@ -1,0 +1,26 @@
+
+=== starlette-repository-context.zip
+901 connections in total
+
+production file -> tests/ file: 0
+
+Python file -> non-.py file: 0
+
+=== unvibecode_results/flask-unvibecode-analysis-20261107_215417/flask-repository-context.zip
+403 connections in total
+
+production file -> tests/ file: 10
+  src/flask/cli.py -> tests/test_apps/helloworld/wsgi.py  [file_import, symbol=None, medium]
+  src/flask/templating.py -> tests/conftest.py  [imports_symbol, symbol=app_ctx, medium]
+  src/flask/helpers.py -> tests/conftest.py  [imports_symbol, symbol=app_ctx, medium]
+  src/flask/testing.py -> tests/test_apps/blueprintapp/apps/admin/static/css/test.css  [imports_module, symbol=None, medium]
+  src/flask/testing.py -> tests/test_apps/blueprintapp/apps/admin/static/css/test.css  [file_import, symbol=None, medium]
+  src/flask/testing.py -> tests/test_apps/helloworld/wsgi.py  [file_import, symbol=None, medium]
+  src/flask/ctx.py -> tests/test_apps/helloworld/wsgi.py  [file_import, symbol=None, medium]
+  src/flask/typing.py -> tests/test_apps/helloworld/wsgi.py  [file_import, symbol=None, medium]
+  src/flask/app.py -> tests/conftest.py  [imports_symbol, symbol=app_ctx, medium]
+  src/flask/app.py -> tests/test_apps/helloworld/wsgi.py  [file_import, symbol=None, medium]
+
+Python file -> non-.py file: 2
+  src/flask/testing.py -> tests/test_apps/blueprintapp/apps/admin/static/css/test.css  [imports_module, medium]
+  src/flask/testing.py -> tests/test_apps/blueprintapp/apps/admin/static/css/test.css  [file_import, medium]
